@@ -264,10 +264,10 @@ $(document).ready(function(){
 
   addChartsAlert('.policies-content .policies-chart');
   addChartsAlert('.sankey-container');
-  addChartsAlert('.payments-content');
+  // addChartsAlert('.payments-content');
   addChartsAlert('.investments-content');
-  addChartsAlert('.main-investments-content');
-  addChartsAlert('.monitoring-content');
+  // addChartsAlert('.main-investments-content');
+  // addChartsAlert('.monitoring-content');
 
   swapTotalsInOverview();
 
