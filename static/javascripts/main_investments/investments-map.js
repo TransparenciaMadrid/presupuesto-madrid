@@ -493,7 +493,9 @@ function InvestmentsMap(_mapSelector, _legendSelector, data, _token) {
       }
       if (Array.isArray(values)) {
         if (field === 'year') {
-          const rango = d3.range(values[0], values[1]).map(d => d.toString()).concat(values[1].toString())
+          const rango0 = Array.from({length: values[1] - values[0]}, (_, i) => values[0] + i)
+          const rango = rango0.map(d => d.toString()).concat(values[1].toString())
+          //const rango = d3.range(values[0], values[1]).map(d => d.toString()).concat(values[1].toString())
           return ['in', field, ...rango]
         } else return ['in', field, ...values]; // Use the field name directly
       }
