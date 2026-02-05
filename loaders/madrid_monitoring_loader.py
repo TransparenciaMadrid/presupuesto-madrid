@@ -109,8 +109,8 @@ class MadridMonitoringLoader(MonitoringLoader):
     # i.e. they're better the lower the value is. The source data doesn't identify these
     # indicators, so we do our best to guess.
     # XXX: This is definitely not the final version.
-    def _is_inverse_indicator(self, description, unit):        
-        if unit in ['SEGUNDOS', 'MINUTOS', 'DÍAS']:
+    def _is_inverse_indicator(self, description, unit):
+        if unit in ['SEGUNDOS', 'MINUTOS', 'DÍAS', 'SEMANAS', 'MESES']:
             return True
         return False
 
