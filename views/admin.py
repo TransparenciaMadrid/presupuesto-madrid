@@ -26,6 +26,13 @@ import subprocess
 import urllib
 import chardet
 
+from sys import version_info
+
+## Fix to use python3.9
+if version_info.major == 3 and version_info.minor >= 8:
+    import html
+    cgi.escape = html.escape
+
 # urllib2 has changed significantly in Python 3
 if six.PY2:
     from urllib2 import Request, urlopen
