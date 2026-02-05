@@ -64,8 +64,8 @@ class MadridMonitoringLoader(MonitoringLoader):
         goal_number = line[2]
 
         # Some other basic fields
-        description = self._decode_utf8(line[4])
-        unit = line[5]
+        description = self._decode_utf8(line[4])        
+        unit = self._decode_utf8(line[5])
         target = int(line[6])
         _is_inverse_indicator = self._is_inverse_indicator(description, unit)
 
@@ -109,7 +109,7 @@ class MadridMonitoringLoader(MonitoringLoader):
     # i.e. they're better the lower the value is. The source data doesn't identify these
     # indicators, so we do our best to guess.
     # XXX: This is definitely not the final version.
-    def _is_inverse_indicator(self, description, unit):
+    def _is_inverse_indicator(self, description, unit):        
         if unit in ['SEGUNDOS', 'MINUTOS', 'DÍAS']:
             return True
         return False
@@ -124,4 +124,8 @@ class MadridMonitoringLoader(MonitoringLoader):
         if six.PY2:
             return s.decode('utf-8')
         else:
-            return s
+            try:
+                return s.encode('latin-1').decode('utf-8')
+            except:
+                return s
+            
