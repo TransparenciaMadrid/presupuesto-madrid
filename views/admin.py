@@ -685,9 +685,9 @@ def _scrape_general(url, year, files_json={}):
                         pass
                     else:
                         result = urllib.parse.urlparse(value_file)
-                    if not all([result.scheme, result.netloc, result.path]):
-                        error = True
-                        msg += f"<p>Ruta del fichero: {file_name} no válida</p>"
+                        if not all([result.scheme, result.netloc, result.path]):
+                            error = True
+                            msg += f"<p>Ruta del fichero: {file_name} no válida</p>"
                     files.append(value_file)
             if error:
                 body = {"result": "error", "message": msg}
@@ -777,9 +777,9 @@ def _scrape_execution(url, month, year, files_json={}):
                         pass
                     else:
                         result = urllib.parse.urlparse(value_file)
-                    if not all([result.scheme, result.netloc, result.path]):
-                        error = True
-                        msg += f"<p>Ruta del fichero: {file_name} no válida</p>"
+                        if not all([result.scheme, result.netloc, result.path]):
+                            error = True
+                            msg += f"<p>Ruta del fichero: {file_name} no válida</p>"
                     files.append(value_file)
             if error:
                 body = {"result": "error", "message": msg}
@@ -1003,9 +1003,9 @@ def _scrape_main_investments(url, year, files_json={}):
                         pass
                     else:
                         result = urllib.parse.urlparse(value_file)
-                    if not all([result.scheme, result.netloc, result.path]):
-                        error = True
-                        msg += f"<p>Ruta del fichero: {file_name} no válida</p>"
+                        if not all([result.scheme, result.netloc, result.path]):
+                            error = True
+                            msg += f"<p>Ruta del fichero: {file_name} no válida</p>"
                     files.append(value_file)
             if error:
                 body = {"result": "error", "message": msg}
