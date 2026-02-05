@@ -47,24 +47,29 @@ function InvestmentsMap(_mapSelector, _legendSelector, data, _token) {
 
   this.selectYear = function (year) {
     // Handle both single years and a year range ("yearFrom,yearTo")
-    selectedYear = (year.includes(',') ? year.split(',') : year);
-
+    if (typeof year === 'string' && year.includes(',')) {
+      selectedYear = year.split(',').map(Number);
+    } else {
+      selectedYear = Number(year);
+    }
+  
     if (mapLoaded) {
       // If still loaded, filtering will happen once that's done
       filterMap();
     }
-
+  
     // Try to update the tooltip, if stuck, if the selected investment exists across the years
     if (hoveredFeature !== null) {
       const pinProject = function () {
+        const targetYear = Array.isArray(selectedYear) ? selectedYear[1] : selectedYear;
         return data.find(
           (d) =>
-            d.year === (Array.isArray(selectedYear) ? selectedYear[1] : selectedYear) &&
+            Number(d.year) === targetYear &&
             d.project_id === hoveredFeature.properties.project_id
         );
       }
-
-      const obj = pinProject()
+  
+      const obj = pinProject();
       if (obj) {
         const tooltip = document.querySelector('#tooltip');
         populateTooltip(tooltip, obj); // The investment exists across the years
@@ -493,13 +498,17 @@ function InvestmentsMap(_mapSelector, _legendSelector, data, _token) {
       }
       if (Array.isArray(values)) {
         if (field === 'year') {
-          const rango0 = Array.from({length: values[1] - values[0]}, (_, i) => values[0] + i)
-          const rango = rango0.map(d => d.toString()).concat(values[1].toString())
-          //const rango = d3.range(values[0], values[1]).map(d => d.toString()).concat(values[1].toString())
-          return ['in', field, ...rango]
-        } else return ['in', field, ...values]; // Use the field name directly
+          // Generate range of years as strings, ensuring we include both start and end
+          const yearRange = [];
+          const startYear = Number(values[0]);
+          const endYear = Number(values[1]);
+          for (let i = startYear; i <= endYear; i++) {
+            yearRange.push(i.toString());
+          }
+          return ['in', field, ...yearRange];
+        } else return ['in', field, ...values];
       }
-      return ['==', field, values]; // Use the field name directly
+      return ['==', field, values.toString()];
     }
     // The status filter is a bit trickier than the others: since we have multiple features for each investment,
     // one per year, stacked on top of each other, if we want to see investments in progress it's not enough

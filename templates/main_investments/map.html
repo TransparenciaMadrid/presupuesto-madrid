@@ -115,7 +115,7 @@
           return;
         }
         // Note that filtering completed investments is trickier since there's a stack of features on top of each other
-        if (filters.status === 'EN PROCESO' && !completedInvestmentsIds.includes(investment.project_id)) {
+        if (filters.status === 'EN PROCESO' && completedInvestmentsIds.includes(investment.project_id)) {
           return;
         }
         if (filters.searchQuery !== '' &&
@@ -123,9 +123,13 @@
           !investment.area_name.toLowerCase().includes(filters.searchQuery)) {
           return;
         }
-
+      
         // Group the investments in the year range
-        if (investment.year >= filters.year[0] && investment.year <= filters.year[1]) {
+        const investmentYear = Number(investment.year);
+        const filterYearStart = Array.isArray(filters.year) ? Number(filters.year[0]) : Number(filters.year);
+        const filterYearEnd = Array.isArray(filters.year) ? Number(filters.year[1]) : Number(filters.year);
+      
+        if (investmentYear >= filterYearStart && investmentYear <= filterYearEnd) {
           groupedInvestments[investment.project_id] = investment;
         }
       });
