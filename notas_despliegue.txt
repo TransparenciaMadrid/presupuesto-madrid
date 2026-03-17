@@ -1,0 +1,22 @@
+Siempre usar el usuario de svcmisim:
+ - sudo su - svcmisim@munimadrid.es
+ 
+Entrar en carpeta raiz:
+ - cd /aytomad/app/visorpresupuestos
+
+git pull en presupuestos:
+  - git pull origin master
+  
+git pull en presupuesto_madrid y volver a raiz:
+  - cd presupuesto_madrid
+  - git pull origin master
+  - cd ..
+
+si no hemos cambiado estaticos:
+  - touch project/wsgi.py
+  
+si hemos cambiado estaticos:
+  - source env3/bin/activate
+  - python3.6 manage.py collectstatic
+  - deactivate
+  - touch project/wsgi.py
