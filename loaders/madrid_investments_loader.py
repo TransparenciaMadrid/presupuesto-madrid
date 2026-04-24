@@ -47,10 +47,11 @@ class MadridInvestmentsLoader(InvestmentsLoader):
             if len(line) > 13:
                 project_id = line[7]
                 description = self._safe_to_utf8(line[8])
+                if line[17] == "17": # is IFS is line 17 is "17", update description with IFS - Description, to detect IFS later
+                    description = "IFS-" + description
                 investment_line = line[11]
                 gc_code = self.map_geo_code(line[9])
                 amount = self._read_spanish_number(line[28 if is_actual else 23])
-
             else:
                 project_id = line[0]
                 description = self._safe_to_utf8(line[1])
