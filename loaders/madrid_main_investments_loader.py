@@ -12,7 +12,7 @@ class MadridMainInvestmentsLoader(MainInvestmentsLoader):
         if raw_url=='':
             return ''
         else:
-            return 'https://images.weserv.nl/?url='+raw_url;
+            return raw_url
 
     # Make sure special district codes (many districts, and no districts) match
     # the special values the application expects.
