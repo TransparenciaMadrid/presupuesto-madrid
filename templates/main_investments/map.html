@@ -40,7 +40,7 @@
         "current_year_spent_amount": '{{ main_investment.current_year_spent_amount/100 }}',
         "total_expected_amount": '{{ main_investment.total_expected_amount/100 }}',
         "status": '{{ main_investment.status }}',
-        "image_URL": '{{ main_investment.image_URL }}',
+        "image_URL": '{{ main_investment.image_URL | replace("https://images.weserv.nl/?url=", "") }}',
       },
     {% endfor %}
     ];
