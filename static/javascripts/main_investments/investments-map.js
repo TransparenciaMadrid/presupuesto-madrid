@@ -61,12 +61,24 @@ function InvestmentsMap(_mapSelector, _legendSelector, data, _token) {
     // Try to update the tooltip, if stuck, if the selected investment exists across the years
     if (hoveredFeature !== null) {
       const pinProject = function () {
-        const targetYear = Array.isArray(selectedYear) ? selectedYear[1] : selectedYear;
-        return data.find(
-          (d) =>
-            Number(d.year) === targetYear &&
-            d.project_id === hoveredFeature.properties.project_id
-        );
+        // Find the most recent instance of the hovered project within the selected
+        // range, matching the single marker the map now shows per project.
+        let start, end;
+        if (selectedYear === 'all') {
+          start = -Infinity; end = Infinity;
+        } else if (Array.isArray(selectedYear)) {
+          start = Number(selectedYear[0]); end = Number(selectedYear[1]);
+        } else {
+          start = end = Number(selectedYear);
+        }
+        let best = null;
+        data.forEach((d) => {
+          if (d.project_id !== hoveredFeature.properties.project_id) return;
+          const y = Number(d.year);
+          if (y < start || y > end) return;
+          if (best === null || y > Number(best.year)) best = d;
+        });
+        return best;
       }
   
       const obj = pinProject();
@@ -492,50 +504,54 @@ function InvestmentsMap(_mapSelector, _legendSelector, data, _token) {
   }
 
   function filterMap() {
-    function getFilter(field, values) {
-      if (values === 'all') {
-        return ['all'];
-      }
-      if (Array.isArray(values)) {
-        if (field === 'year') {
-          // Generate range of years as strings, ensuring we include both start and end
-          const yearRange = [];
-          const startYear = Number(values[0]);
-          const endYear = Number(values[1]);
-          for (let i = startYear; i <= endYear; i++) {
-            yearRange.push(i.toString());
-          }
-          return ['in', field, ...yearRange];
-        } else return ['in', field, ...values];
-      }
-      return ['==', field, values.toString()];
-    }
-    // The status filter is a bit trickier than the others: since we have multiple features for each investment,
-    // one per year, stacked on top of each other, if we want to see investments in progress it's not enough
-    // to just remove the features that are marked as completed, because that would reveal the feature just below it,
-    // from the year below, when the investment was in progress. We need to keep track of all investments that are
-    // eventually completed, and filter against that.
-    function getStatusFilter(value) {
-      if (value !== 'EN PROCESO') {
-        return getFilter('status', value);
-      } else {
-        return ['!in', 'project_id', ...completedInvestments];
-      }
+    // Resolve the selected year range. `selectedYear` can be 'all', a single year,
+    // or a [from, to] range.
+    let startYear, endYear;
+    if (selectedYear === 'all') {
+      startYear = -Infinity;
+      endYear = Infinity;
+    } else if (Array.isArray(selectedYear)) {
+      startYear = Number(selectedYear[0]);
+      endYear = Number(selectedYear[1]);
+    } else {
+      startYear = endYear = Number(selectedYear);
     }
 
-    // We want to throw an event when the data in the map has changed, but the setFilter() operation
-    // is asynchronous, so we need to set up a one-off listener to wait for completion.
+    // Each project shows up once per year it's active, as a separate feature stacked on
+    // the same spot. Within the selected range we only want to display the MOST RECENT
+    // instance of each project (matching the active category/status filters), so the map
+    // shows a single marker per project instead of one per year. This mirrors the
+    // breakdown grouping done in map.html.
+    //
+    // Status filter semantics are preserved from the previous implementation:
+    //  - FINALIZADO: only projects whose shown (latest) instance is completed.
+    //  - EN PROCESO: exclude any project that is eventually completed (uses the
+    //    precomputed `completedInvestments` list, same as before).
+    const winners = {}; // project_id -> { id, year }
+    data.forEach((d, i) => {
+      if (d.longitude === '') return; // this row has no marker on the map
+      const year = Number(d.year);
+      if (year < startYear || year > endYear) return;
+      if (selectedFunctionalCategory !== 'all' &&
+          !selectedFunctionalCategory.includes(d.functional_category)) return;
+      if (selectedStatus === 'FINALIZADO' && d.status !== 'FINALIZADO') return;
+      if (selectedStatus === 'EN PROCESO' && completedInvestments.includes(d.project_id)) return;
+      const current = winners[d.project_id];
+      if (!current || year > current.year) {
+        winners[d.project_id] = { id: i, year: year };
+      }
+    });
+    const winnerIds = Object.keys(winners).map((pid) => winners[pid].id);
+
+    // We want to throw an event when the data in the map has changed, but the setFilter()
+    // operation is asynchronous, so we set up a one-off listener to wait for completion.
     const onIdle = () => {
       map.off('idle', onIdle);
       throwVisibleDataChangedEvent();
     };
     map.on('idle', onIdle);
-    map.setFilter('investmentsLayer', [
-      'all',
-      getFilter('functional_category', selectedFunctionalCategory),
-      getStatusFilter(selectedStatus),
-      getFilter('year', selectedYear),
-    ]);
+    // Show only the winning feature (the latest year within range) of each project.
+    map.setFilter('investmentsLayer', ['in', ['id'], ['literal', winnerIds]]);
   }
 
   // Go through all the features (not just the visible ones), setting a property indicating
