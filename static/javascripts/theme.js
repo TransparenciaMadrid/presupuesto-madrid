@@ -200,10 +200,10 @@ $(document).ready(function(){
     var ifsNote = {
       'es': '<p style="font-weight: 400 !important;">' +
             'Del total de dinero presupuestado en inversiones, una parte son ' +
-            '<a href="/es/glosario?q=inversion+financieramente+sostenible">inversiones financieramente sostenibles</a> (IFS).</p>',
+            '<a href="/es/busqueda?q=IFS">inversiones financieramente sostenibles</a> (IFS).</p>',
       'en': '<p style="font-weight: 400 !important;">' +
             'Of the total money budgeted in investments, a part are ' +
-            '<a href="/en/glosario?q=financially+sustainable+investments">financially sustainable investments</a> (IFS).</p>'
+            '<a href="/en/busqueda?q=IFS">financially sustainable investments</a> (IFS).</p>'
     }
 
     // We want to show the message only when IFS are applicable. Since we don't have the year handy at this point,
