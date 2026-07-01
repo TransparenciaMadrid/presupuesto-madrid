@@ -199,23 +199,11 @@ $(document).ready(function(){
 
     var ifsNote = {
       'es': '<p style="font-weight: 400 !important;">' +
-            'Del total de dinero presupuestado en inversiones, un porcentaje elevado son inversiones financieramente ' +
-            'sostenibles (IFS) que, tal como establece la normativa vigente, se pueden ejecutar en dos ejercicios presupuestarios. En ' +
-            'consecuencia para evaluar la ejecución de estos proyectos habrá que esperar a que transcurra el ejercicio posterior. ' +
-            'Dichas inversiones se distinguen mediante un identificador que aparece al principio del texto descriptivo de los mismos: IFS.</p>' +
-            '<p style="font-weight: 400 !important;">' +
-            'Las IFS se habilitan en el presupuesto mediante créditos extraordinarios y suplementos de crédito que exigen los mismos ' +
-            'trámites que la aprobación del presupuesto general, por lo que el período de tramitación es largo y, como consecuencia, la ' +
-            'ejecución del gasto en el primer ejercicio es menor.</p>',
+            'Del total de dinero presupuestado en inversiones, una parte son ' +
+            '<a href="/es/glosario?q=inversion+financieramente+sostenible">inversiones financieramente sostenibles</a> (IFS).</p>',
       'en': '<p style="font-weight: 400 !important;">' +
-            'Of the total money budgeted in investments, a high percentage are financially sustainable investments (IFS) that, as ' +
-            'established by current regulations, can be executed in two budgetary years. Consequently, in order to evaluate the execution ' +
-            'of these projects, it will be necessary to wait until the following year. These investments are distinguished by an identifier ' +
-            'that appears at the beginning of the descriptive text of the same: IFS.</p>' +
-            '<p style="font-weight: 400 !important;">' +
-            'IFSs are enabled in the budget through extraordinary ' +
-            'loans and credit supplements that require the same procedures as the approval of the general budget, so the processing period is ' +
-            'long and, as a consequence, the execution of the expenditure in the first year is lower.</p>'
+            'Of the total money budgeted in investments, a part are ' +
+            '<a href="/en/glosario?q=financially+sustainable+investments">financially sustainable investments</a> (IFS).</p>'
     }
 
     // We want to show the message only when IFS are applicable. Since we don't have the year handy at this point,
