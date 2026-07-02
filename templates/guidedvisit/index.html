@@ -135,6 +135,10 @@
           <h3 id="video-de-presentacion">{{ _('Vídeo de presentación') }}</h3>
 
           <p>{{ _('Tienes también a tu disposición un video con la presentación general de Presupuestos Abiertos en <a href="https://transparencia.madrid.es/UnidadesDescentralizadas/GobiernoAbierto/Intranet/Comunicacion/Videos/ProyectoVideo1080Presupuestos.mp4">Vídeo demostrativo de la aplicación de Presupuestos Abiertos</a>.') | safe }}</p>
+
+          <div class="video-container">
+            <video controls preload="metadata" src="https://transparencia.madrid.es/UnidadesDescentralizadas/GobiernoAbierto/Intranet/Comunicacion/Videos/ProyectoVideo1080Presupuestos.mp4"></video>
+          </div>
         </div>
       </div>
     </div>
@@ -152,7 +156,8 @@
     margin-bottom: 30px;
   }
 
-  .video-container iframe {
+  .video-container iframe,
+  .video-container video {
     position: absolute;
     top: 0;
     left: 0;
