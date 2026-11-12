@@ -1829,6 +1829,22 @@ def _csv_response(data, status=200):
     return HttpResponse(data, content_type="text/csv; charset=utf-8", status=status)
 
 
+# The open data portal has published files both in UTF-8 (with or without BOM)
+# and in Windows' "ANSI" (cp1252), so we can't assume a fixed encoding.
+# 'utf-8-sig' also strips the BOM; cp1252 is a superset of ISO-8859-1 for
+# printable characters, and keeps typographic quotes, dashes, '…' or '€'.
+# The few bytes cp1252 leaves undefined (0x81, 0x8D...) are stray control
+# characters already present in the published data, so we just drop them.
+def _detect_csv_encoding(file_path):
+    with open(file_path, "rb") as f:
+        content = f.read()
+    try:
+        content.decode('utf-8-sig')
+        return {'encoding': 'utf-8-sig'}
+    except UnicodeDecodeError:
+        return {'encoding': 'cp1252', 'errors': 'ignore'}
+
+
 # A poor man's version of `csvcut`, it can create a target file using
 # a subset of columns from the given source file.
 # Note that it also removes duplicates! It was useful for goals data,
@@ -1842,7 +1858,7 @@ def _csv_cut_columns(path, source_filename, target_filename, columns, output_enc
     if six.PY2:
         read_params = write_params = {}
     else:
-        read_params = {'newline': '', 'encoding': 'iso-8859-1'}
+        read_params = dict(newline='', **_detect_csv_encoding(os.path.join(path, source_filename)))
         write_params = {'newline': '', 'encoding': output_encoding}
 
     last_line = []
