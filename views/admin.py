@@ -1521,12 +1521,10 @@ def _download(url, temp_folder_path, filename):
         if six.PY2:
             _write_temp(temp_folder_path, filename, response.read(), 'iso-8859-1')
         else:
-            # Con python3.6 no se puede usar la libreria chardet. Hay que detectar los 
-            # encodings a mano
+            # No usamos chardet aquí: con ficheros de ~35 MB tarda casi un minuto y la
+            # petición acaba cortada por timeout. La codificación se detecta al leer el
+            # fichero en _csv_cut_columns.
             response_rb  = response.read()
-            enc = chardet.detect(response_rb)
-            enc = enc["encoding"]
-            print(f"File {filename} has encoding: {enc}")
             _            = response_rb.decode('utf-8') # Si es iso-8859-1 UnicodeError
             if response_rb[:3] == b'\xef\xbb\xbf':  # Caso de utf-8 con BOM
                 response_rb = response_rb[3:]
