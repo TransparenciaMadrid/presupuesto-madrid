@@ -23,6 +23,7 @@ import os
 import re
 import six
 import subprocess
+import time
 import urllib
 import chardet
 
@@ -66,6 +67,11 @@ MAIN_INVESTMENTS_URL = "https://datos.madrid.es/sites/v/index.jsp?vgnextoid=77de
 PAYMENTS_URL = "https://datos.madrid.es/sites/v/index.jsp?vgnextoid=2fd903751cd56610VgnVCM2000001f4a900aRCRD"
 
 TEMP_BASE_PATH = "/tmp/budget_app"
+
+# The open data portal sometimes answers the first download with a welcome HTML page
+# (with a 200 status) instead of the requested file. A later request gets the file.
+DOWNLOAD_ATTEMPTS = 3
+DOWNLOAD_RETRY_DELAY = 2  # seconds
 
 # Select the Python interpreter for external commands based on the version we're running
 
@@ -1525,6 +1531,14 @@ def _download(url, temp_folder_path, filename):
             # petición acaba cortada por timeout. La codificación se detecta al leer el
             # fichero en _csv_cut_columns.
             response_rb  = response.read()
+            for _attempt in range(DOWNLOAD_ATTEMPTS - 1):
+                if not _looks_like_html(response_rb):
+                    break
+                print(f"File {filename} came back as an HTML page, retrying...")
+                response.close()
+                time.sleep(DOWNLOAD_RETRY_DELAY)
+                response    = urlopen(Request(url, headers={'User-Agent': 'Mozilla'}))
+                response_rb = response.read()
             _            = response_rb.decode('utf-8') # Si es iso-8859-1 UnicodeError
             if response_rb[:3] == b'\xef\xbb\xbf':  # Caso de utf-8 con BOM
                 response_rb = response_rb[3:]
@@ -1843,6 +1857,10 @@ def _detect_csv_encoding(file_path):
         return {'encoding': 'cp1252', 'errors': 'ignore'}
 
 
+def _looks_like_html(content):
+    return content.lstrip()[:15].lower().startswith((b'<!doctype html', b'<html', b'<!--'))
+
+
 # A poor man's version of `csvcut`, it can create a target file using
 # a subset of columns from the given source file.
 # Note that it also removes duplicates! It was useful for goals data,
@@ -1865,6 +1883,17 @@ def _csv_cut_columns(path, source_filename, target_filename, columns, output_enc
         with open(os.path.join(path, source_filename), read_mode, **read_params) as source:
             reader = csv.reader(source, delimiter=';')
             for index, line in enumerate(reader):
+                if len(line) <= max(columns):
+                    with open(os.path.join(path, source_filename), "rb") as f:
+                        is_html = _looks_like_html(f.read(1024))
+                    if is_html:
+                        raise AdminException(
+                            "El fichero %s no es un CSV sino una página web. El portal de datos "
+                            "abiertos a veces devuelve una página de bienvenida en lugar del "
+                            "fichero: vuelve a intentarlo en unos segundos." % source_filename)
+                    raise AdminException(
+                        "La línea %d de %s tiene %d columnas y se esperaban al menos %d." %
+                        (index + 1, source_filename, len(line), max(columns) + 1))
                 columns_to_write = [line[c] for c in columns]
                 if columns_to_write == last_line:
                     continue
